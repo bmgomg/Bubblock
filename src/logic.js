@@ -17,36 +17,44 @@ const isEmptyGrid = (g) => g.every(row => row.every(c => c === EMPTY));
 const rotateCW = (grid) => {
     const N = grid.length;
     const r = Array.from({ length: N }, () => Array(N).fill(EMPTY));
+
     for (let y = 0; y < N; y++) {
         for (let x = 0; x < N; x++) {
             r[x][N - 1 - y] = grid[y][x];
         }
     }
+
     return r;
 };
 
 const rotateCCW = (grid) => {
     const N = grid.length;
     const r = Array.from({ length: N }, () => Array(N).fill(EMPTY));
+
     for (let y = 0; y < N; y++) {
         for (let x = 0; x < N; x++) {
             r[N - 1 - x][y] = grid[y][x];
         }
     }
+
     return r;
 };
 
 const rotateDoorCW = (door) => {
     const { side, index } = door;
+
     if (side === 'top') {
         return { side: 'right', index };
     }
+
     if (side === 'right') {
         return { side: 'bottom', index };
     }
+
     if (side === 'bottom') {
         return { side: 'left', index };
     }
+
     if (side === 'left') {
         return { side: 'top', index };
     }
@@ -54,15 +62,19 @@ const rotateDoorCW = (door) => {
 
 const rotateDoorCCW = (door) => {
     const { side, index } = door;
+
     if (side === 'top') {
         return { side: 'left', index };
     }
+
     if (side === 'left') {
         return { side: 'bottom', index };
     }
+
     if (side === 'bottom') {
         return { side: 'right', index };
     }
+
     if (side === 'right') {
         return { side: 'top', index };
     }
@@ -76,7 +88,10 @@ const applyPhysics = (grid, door) => {
     let g = cloneGrid(grid);
 
     const cell = (y, x) => {
-        if (y < 0 || y >= N || x < 0 || x >= N) return null;
+        if (y < 0 || y >= N || x < 0 || x >= N) {
+            return null;
+        }
+
         return g[y][x];
     };
 
@@ -88,30 +103,37 @@ const applyPhysics = (grid, door) => {
         if (dy > 0 && door.side === 'bottom' && y === N - 1 && x === door.index) {
             return true;
         }
+
         if (dy < 0 && door.side === 'top' && y === 0 && x === door.index) {
             return true;
         }
+
         return false;
     };
 
     const slide = (y, x, dy) => {
         const obj = cell(y, x);
+
         if (obj === EMPTY) {
             return;
         }
 
         let cy = y;
+
         while (true) {
             const ny = cy + dy;
+
             if (ny < 0 || ny >= N) {
                 if (isDoorAt(cy, x, dy)) {
                     set(cy, x, EMPTY);
                 }
                 break;
             }
+
             if (cell(ny, x) !== EMPTY) {
                 break;
             }
+
             cy = ny;
         }
 
@@ -157,6 +179,7 @@ const applyPhysics = (grid, door) => {
                 }
 
                 let bubblesBelow = 0;
+
                 for (let yy = y + 1; yy < N; yy++) {
                     if (cell(yy, x) === BUBBLE) {
                         bubblesBelow++;
@@ -185,6 +208,7 @@ const applyPhysics = (grid, door) => {
     while (true) {
         const v = resolveVacancies();
         const p = resolvePushing();
+
         if (!v && !p) {
             break;
         }
@@ -251,18 +275,23 @@ const randomCornerDoor = (size) => {
         { side: 'bottom', index: 0 },
         { side: 'bottom', index: size - 1 }
     ];
+
     return corners[Math.floor(Math.random() * corners.length)];
 };
 
 const randomGrid = (size) => {
     const g = [];
+
     for (let y = 0; y < size; y++) {
         const row = [];
+
         for (let x = 0; x < size; x++) {
             row.push(Math.random() < 0.5 ? BUBBLE : BLOCK);
         }
+
         g.push(row);
     }
+
     return g;
 };
 
@@ -271,9 +300,11 @@ export const generatePuzzle = (size, targetLength = null) => {
         if (targetLength == null) {
             return true;
         }
+
         if (typeof targetLength === 'number') {
             return len === targetLength;
         }
+
         return len >= targetLength.min && len <= targetLength.max;
     };
 
@@ -282,9 +313,11 @@ export const generatePuzzle = (size, targetLength = null) => {
         const door = randomCornerDoor(size);
 
         const sol = solveMinimal(grid, door);
+
         if (!sol) {
             continue;
         }
+
         if (!matches(sol.length)) {
             continue;
         }
